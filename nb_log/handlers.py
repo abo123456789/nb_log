@@ -19,7 +19,7 @@ import logging
 from logging import handlers
 from concurrent_log_handler import ConcurrentRotatingFileHandler  # 需要安装。concurrent-log-handler==0.9.1
 
-from nb_log import nb_log_config_default
+from nb_log import easy_log_config_default
 from nb_log import nb_print
 
 very_nb_print = nb_print
@@ -503,7 +503,7 @@ class ColorHandler(logging.Handler):
             assist_msg = self.format(record_copy)
             # print(f'**  {assist_msg}  ** ')
             stream = self.stream
-            if nb_log_config_default.DISPLAY_BACKGROUD_COLOR_IN_CONSOLE:
+            if easy_log_config_default.DISPLAY_BACKGROUD_COLOR_IN_CONSOLE:
                 msg_color = self.__build_color_msg_with_backgroud_color(record.levelno, assist_msg,
                                                                         effective_information_msg)
             else:

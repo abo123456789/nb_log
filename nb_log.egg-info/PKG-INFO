@@ -139,7 +139,7 @@ Description: ## 1. pip install nb_log
         ## 6 日志优先默认配置
         
         只要项目任意文件运行了，带有import nb_log的脚本，就会在项目根目录下生成nb_log_config.py配置文件。
-        nb_log_config.py的内容如下，默认都是用#注释了，如果放开某项配置则优先使用这里的配置，否则使用nb_log_config_default.py中的配置。
+        nb_log_config.py的内容如下，默认都是用#注释了，如果放开某项配置则优先使用这里的配置，否则使用easy_log_config_default.py中的配置。
         
         配置示例如下：
         ```
