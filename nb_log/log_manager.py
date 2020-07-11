@@ -602,10 +602,6 @@ class LoggerLevelSetterMixin:
 
 
 if __name__ == "__main__":
-    # unittest.main()
-    # from multiprocessing import Process
-    #
-    # [Process(target=test_multiprocess_file_handler).start() for _ in range(10)]
     print(123456)
     logger = LogManager('test14').get_logger_and_add_handlers(formatter_template=4)
     logger.debug('xxxx')
