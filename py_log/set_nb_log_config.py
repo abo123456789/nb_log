@@ -9,7 +9,7 @@ import sys
 import time
 import importlib
 from pathlib import Path
-from nb_log import _easy_log_config_default
+from py_log import _py_log_config_default
 
 
 # noinspection PyProtectedMember,PyUnusedLocal,PyIncorrectDocstring
@@ -29,7 +29,7 @@ def nb_print(*args, sep=' ', end='\n', file=None):
         # 获取被调用函数所在模块文件名
         file_name = sys._getframe(1).f_code.co_filename
         # sys.stdout.write(f'"{__file__}:{sys._getframe().f_lineno}"    {x}\n')
-        if easy_log_config_default.DISPLAY_BACKGROUD_COLOR_IN_CONSOLE:
+        if py_log_config_default.DISPLAY_BACKGROUD_COLOR_IN_CONSOLE:
             sys.stdout.write(
                 f'\033[0;34m{time.strftime("%H:%M:%S")}  "{file_name}:{line}"   \033[0;30;44m{sep.join(args)}\033[0m{end} \033[0m')  # 36  93 96 94
         else:
@@ -40,15 +40,15 @@ def nb_print(*args, sep=' ', end='\n', file=None):
 
 def show_nb_log_config():
     nb_print('显示nb_log 包的默认的低优先级的配置参数')
-    for var_name in dir(easy_log_config_default):
-        nb_print(var_name, getattr(easy_log_config_default, ':', var_name))
+    for var_name in dir(py_log_config_default):
+        nb_print(var_name, getattr(py_log_config_default, ':', var_name))
     print('\n')
 
 
 config_file_content = '''# -*- coding: utf-8 -*-
 """
 此文件nb_log_config.py是自动生成到python项目的根目录的。
-在这里面写的变量会覆盖此文件easy_log_config_default中的值。对nb_log包进行默认的配置。
+在这里面写的变量会覆盖此文件py_log_config_default中的值。对nb_log包进行默认的配置。
 
 由于不同的logger天然就是多个实例，所以可以通过get_logger_and_handlers传参针对每个logger精确的做不同的配置。
 最终配置方式是由get_logger_and_add_handlers方法的各种传参决定，如果方法相应的传参为None则使用这里面的配置。
@@ -126,7 +126,7 @@ def use_config_form_nb_log_config_module():
         sys.stdout.write(f'{time.strftime("%H:%M:%S")}  "{file_name}:{line}"   {msg} \n \033[0m')
         for var_namex, var_valuex in m.__dict__.items():
             if var_namex.isupper():
-                setattr(easy_log_config_default, var_namex, var_valuex)
+                setattr(py_log_config_default, var_namex, var_valuex)
     except ModuleNotFoundError:
         msg = f'''在你的项目根目录下生成了 \n "{Path(sys.path[1]) / Path('nb_log_config.py')}:1" 的nb_log包的日志配置文件，快去看看并修改一些自定义配置吧'''
         sys.stdout.write(f'{time.strftime("%H:%M:%S")}  "{file_name}:{line}"   {msg} \n \033[0m')

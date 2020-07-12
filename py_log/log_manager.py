@@ -21,8 +21,8 @@ concurrent_log_handler的ConcurrentRotatingFileHandler解决了logging模块自�
 import unittest
 from functools import lru_cache
 
-from nb_log.handlers import *
-from nb_log import easy_log_config_default
+from py_log.handlers import *
+from py_log import py_log_config_default
 
 
 def revision_call_handlers(self, record):  # 对logging标准模块打猴子补丁。主要是使父命名空间的handler不重复记录当前命名空间日志已有种类的handler。
@@ -143,11 +143,11 @@ class DataClassBase:
 
 
 class MailHandlerConfig(DataClassBase):
-    mailhost: tuple = easy_log_config_default.EMAIL_HOST
-    fromaddr: str = easy_log_config_default.EMAIL_FROMADDR
-    toaddrs: tuple = easy_log_config_default.EMAIL_TOADDRS
+    mailhost: tuple = py_log_config_default.EMAIL_HOST
+    fromaddr: str = py_log_config_default.EMAIL_FROMADDR
+    toaddrs: tuple = py_log_config_default.EMAIL_TOADDRS
     subject: str = 'xx项目邮件日志报警'
-    credentials: tuple = easy_log_config_default.EMAIL_CREDENTIALS
+    credentials: tuple = py_log_config_default.EMAIL_CREDENTIALS
     secure = None
     timeout = 5.0
     is_use_ssl = True
@@ -203,15 +203,15 @@ class LogManager(object):
        :type log_file_size :int
        """
         if log_level_int is None:
-            log_level_int = easy_log_config_default.LOG_LEVEL_FILTER
+            log_level_int = py_log_config_default.LOG_LEVEL_FILTER
         if do_not_use_color_handler is None:
-            do_not_use_color_handler = not easy_log_config_default.DEFAULUT_USE_COLOR_HANDLER
-        if log_filename is None and easy_log_config_default.DEFAULT_ADD_MULTIPROCESSING_SAFE_ROATING_FILE_HANDLER:
+            do_not_use_color_handler = not py_log_config_default.DEFAULUT_USE_COLOR_HANDLER
+        if log_filename is None and py_log_config_default.DEFAULT_ADD_MULTIPROCESSING_SAFE_ROATING_FILE_HANDLER:
             log_filename = f'{self._logger_name}.log'
         if log_file_size is None:
-            log_file_size = easy_log_config_default.LOG_FILE_SIZE
+            log_file_size = py_log_config_default.LOG_FILE_SIZE
         if formatter_template is None:
-            formatter_template = easy_log_config_default.FORMATTER_KIND
+            formatter_template = py_log_config_default.FORMATTER_KIND
 
         self._logger_level = log_level_int * 10 if log_level_int < 10 else log_level_int
         self._is_add_stream_handler = is_add_stream_handler
@@ -227,7 +227,7 @@ class LogManager(object):
         self._mail_handler_config = mail_handler_config
         self._is_add_mail_handler = is_add_mail_handler
 
-        self._formatter = easy_log_config_default.FORMATTER_DICT[formatter_template]
+        self._formatter = py_log_config_default.FORMATTER_DICT[formatter_template]
 
         self.logger.setLevel(self._logger_level)
         self.__add_handlers()
@@ -293,14 +293,14 @@ class LogManager(object):
                 # 10进程各自写入10万条记录到同一个文件消耗15分钟。比不切片写入速度降低100倍。
                 rotate_file_handler = ConcurrentRotatingFileHandlerWithBufferInitiativeWindwos(log_file,
                                                                                                maxBytes=self._log_file_size * 1024 * 1024,
-                                                                                               backupCount=easy_log_config_default.LOG_FILE_BACKUP_COUNT,
+                                                                                               backupCount=py_log_config_default.LOG_FILE_BACKUP_COUNT,
                                                                                                encoding="utf-8")
             elif os_name == 'posix':
                 # linux下可以使用ConcurrentRotatingFileHandler，进程安全的日志方式。
                 # 10进程各自写入10万条记录到同一个文件消耗100秒，还是比不切片写入速度降低10倍。因为每次检查切片大小和文件锁的原因。
                 rotate_file_handler = ConcurrentRotatingFileHandlerWithBufferInitiativeLinux(log_file,
                                                                                              maxBytes=self._log_file_size * 1024 * 1024,
-                                                                                             backupCount=easy_log_config_default.LOG_FILE_BACKUP_COUNT,
+                                                                                             backupCount=py_log_config_default.LOG_FILE_BACKUP_COUNT,
                                                                                              encoding="utf-8")
             self.__add_a_hanlder(rotate_file_handler)
 
@@ -309,19 +309,19 @@ class LogManager(object):
             self.__add_a_hanlder(MongoHandler(self._mongo_url))
 
         if not self._judge_logger_has_handler_type(
-                ElasticHandler) and self._is_add_elastic_handler and easy_log_config_default.RUN_ENV == 'test':  # 使用kafka。不直接es。
+                ElasticHandler) and self._is_add_elastic_handler and py_log_config_default.RUN_ENV == 'test':  # 使用kafka。不直接es。
             """
             生产环境使用阿里云 oss日志，不使用这个。
             """
             self.__add_a_hanlder(
-                ElasticHandler([easy_log_config_default.ELASTIC_HOST], easy_log_config_default.ELASTIC_PORT))
+                ElasticHandler([py_log_config_default.ELASTIC_HOST], py_log_config_default.ELASTIC_PORT))
 
         # REMIND 添加kafka日志。
         # if self._is_add_kafka_handler:
         if not self._judge_logger_has_handler_type(
-                KafkaHandler) and easy_log_config_default.RUN_ENV == 'test' \
-                and easy_log_config_default.ALWAYS_ADD_KAFKA_HANDLER_IN_TEST_ENVIRONENT:
-            self.__add_a_hanlder(KafkaHandler(easy_log_config_default.KAFKA_BOOTSTRAP_SERVERS, ))
+                KafkaHandler) and py_log_config_default.RUN_ENV == 'test' \
+                and py_log_config_default.ALWAYS_ADD_KAFKA_HANDLER_IN_TEST_ENVIRONENT:
+            self.__add_a_hanlder(KafkaHandler(py_log_config_default.KAFKA_BOOTSTRAP_SERVERS, ))
 
         # REMIND 添加钉钉日志。
         if not self._judge_logger_has_handler_type(DingTalkHandler) and self._ding_talk_token:
@@ -523,7 +523,7 @@ class LoggerLevelSetterMixin:
 #     @unittest.skip
 #     def test_ding_talk(self):
 #         logger = LogManager('testdinding').get_logger_and_add_handlers(
-#             ding_talk_token=easy_log_config_default.DING_TALK_TOKEN,
+#             ding_talk_token=py_log_config_default.DING_TALK_TOKEN,
 #             ding_talk_time_interval=10)
 #         logger.debug('啦啦啦德玛西亚1')
 #         logger.debug('啦啦啦德玛西亚2')
@@ -582,8 +582,8 @@ class LoggerLevelSetterMixin:
 #     @unittest.skip
 #     def test_all_handlers(self):
 #         logger = LogManager('hi').get_logger_and_add_handlers(log_filename='hi.log',
-#                                                               ding_talk_token=easy_log_config_default.DING_TALK_TOKEN,
-#                                                               mongo_url=easy_log_config_default.MONGO_URL,
+#                                                               ding_talk_token=py_log_config_default.DING_TALK_TOKEN,
+#                                                               mongo_url=py_log_config_default.MONGO_URL,
 #                                                               formatter_template=5)
 #         logger.debug('测试多种handler')
 

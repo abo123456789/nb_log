@@ -5,7 +5,7 @@ filepath = 'README.md'
 
 setup(
     name='py-log',
-    version="1.4",
+    version="1.5",
     description=(
         'a simple logging tool(support file,email,dingtalk) ,Multithreading and Multi process safe'
     ),
@@ -14,8 +14,8 @@ setup(
     long_description=open(filepath, 'r', encoding='utf8').read(),
     author='bfzs',
     author_email='ydf0509@sohu.com',
-    maintainer='ydf',
-    maintainer_email='ydf0509@sohu.com',
+    maintainer='abo123456',
+    maintainer_email='abcdef123456chen@sohu.com',
     license='BSD License',
     packages=find_packages(),
     include_package_data=True,

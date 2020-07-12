@@ -8,7 +8,7 @@
 import sys
 import time
 import traceback
-from nb_log import easy_log_config_default
+from py_log import py_log_config_default
 
 # noinspection PyProtectedMember,PyUnusedLocal,PyIncorrectDocstring
 def nb_print(*args, sep=' ', end='\n', file=None):
@@ -27,7 +27,7 @@ def nb_print(*args, sep=' ', end='\n', file=None):
         # 获取被调用函数所在模块文件名
         file_name = sys._getframe(1).f_code.co_filename
         # sys.stdout.write(f'"{__file__}:{sys._getframe().f_lineno}"    {x}\n')
-        if easy_log_config_default.DISPLAY_BACKGROUD_COLOR_IN_CONSOLE:
+        if py_log_config_default.DISPLAY_BACKGROUD_COLOR_IN_CONSOLE:
             sys.stdout.write(
                 f'\033[0;34m{time.strftime("%H:%M:%S")}  "{file_name}:{line}"   \033[0;30;44m{sep.join(args)}\033[0m{end} \033[0m')  # 36  93 96 94
         else:
