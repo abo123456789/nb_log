@@ -27,3 +27,18 @@ pip install py-log
     logger = LogManager('ding_talk_test').get_logger_and_add_handlers(ding_talk_token=ding_talk_token)
     logger.info('钉钉调试')
 ```
+
+```python
+    from py_log import LogManager
+    from py_log.log_manager import MailHandlerConfig
+    # log send dingding
+    mail_config = MailHandlerConfig()
+    mail_config.mailhost = ('smtp.sohu.com', 465)
+    mail_config.fromaddr = 'aaa@sohu.com'
+    mail_config.toaddrs = 'bbb@qq.com'
+    mail_config.credentials = ('mail_username', 'mail_password')
+    logger_mail = LogManager('log_mail_test').get_logger_and_add_handlers(mail_handler_config=mail_config,
+                                                                          is_add_mail_handler=True)
+    logger_mail.info('test send mail content')
+```
+
