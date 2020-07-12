@@ -603,7 +603,9 @@ class LoggerLevelSetterMixin:
 
 if __name__ == "__main__":
     print(123456)
-    logger = LogManager('test14').get_logger_and_add_handlers(formatter_template=4)
-    logger.debug('xxxx')
-    logging.warning('yyyyyyy')
-    logger.warning('zzzzzzzzz')
+    logger = LogManager('test14').get_logger_and_add_handlers(formatter_template=5)
+    logger.debug('aaaa')
+    logger.warning('bbbb')
+    logger.warning('cccc')
+    logger.error('dddd')
+    logging.error('fffff')
