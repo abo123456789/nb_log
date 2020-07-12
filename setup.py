@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 filepath = 'README.md'
 
 setup(
-    name='log4j',
-    version="1.2",
+    name='py-log',
+    version="1.4",
     description=(
         'a simple logging tool(support file,email,dingtalk) ,Multithreading and Multi process safe'
     ),

@@ -6,12 +6,12 @@ a simple logging tool(support file,email,dingtalk) ,mutil thread and process saf
 
 #### Pip installation
 ```shell
-pip install log4j
+pip install py-log
 ```
 
 #### Demo
 ```python
-    from log4j import LogManager
+    from py_log import LogManager
 
     logger = LogManager('test1').get_logger_and_add_handlers(log_filename='test1.log')
     logger.info('aaaa')
