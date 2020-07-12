@@ -11,6 +11,13 @@ pip install py-log
 
 #### Demo
 ```python
+    # log console 
+    from py_log import get_logger
+    log = get_logger('test')
+    log.info('123')
+```
+
+```python
     # log write file
     from py_log import LogManager
     logger = LogManager('test1').get_logger_and_add_handlers(log_filename='test1.log')
