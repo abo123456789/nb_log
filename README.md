@@ -29,9 +29,9 @@ pip install py-log
 ```
 
 ```python
+    # log send email
     from py_log import LogManager
     from py_log.log_manager import MailHandlerConfig
-    # log send dingding
     mail_config = MailHandlerConfig()
     mail_config.mailhost = ('smtp.sohu.com', 465)
     mail_config.fromaddr = 'aaa@sohu.com'
