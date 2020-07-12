@@ -18,21 +18,23 @@ pip install py-log
 ```
 
 ```python
-    # log write file
-    from py_log import LogManager
-    logger = LogManager('test1').get_logger_and_add_handlers(log_filename='test1.log')
-    logger.info('aaaa')
-    logger.debug('bbbb')
-    logger.warning('cccc')
-    logger.error('dddd')
+# log write file
+from py_log import get_logger
+
+logger = get_logger('test1', log_filename='test1.log')
+logger.info('aaaa')
+logger.debug('bbbb')
+logger.warning('cccc')
+logger.error('dddd')
 ```
 
 ```python
-    # log send dingding
-    from py_log import LogManager
-    ding_talk_token = 'xxxxxxxx'
-    logger = LogManager('ding_talk_test').get_logger_and_add_handlers(ding_talk_token=ding_talk_token)
-    logger.info('钉钉调试')
+# log send dingding
+from py_log import get_logger
+
+ding_talk_token = 'xxxxxxxx'
+logger = get_logger('ding_talk_test',ding_talk_token=ding_talk_token)
+logger.info('钉钉调试')
 ```
 
 ```python
