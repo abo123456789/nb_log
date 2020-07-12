@@ -5,7 +5,7 @@ filepath = 'README.md'
 
 setup(
     name='py-log',
-    version="1.7",
+    version="1.8",
     description=(
         'a simple logging tool(support file,email,dingtalk) ,Multithreading and Multi process safe'
     ),
@@ -20,7 +20,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms=["all"],
-    url='',
+    url='https://github.com/abo123456789/py-log',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Operating System :: OS Independent',
