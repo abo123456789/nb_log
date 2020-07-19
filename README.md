@@ -1,5 +1,5 @@
 #### Function description
-a simple logging tool(support file,email,dingtalk) ,mutil thread and process safe
+py-log is a simple logging tool(support file,email,dingtalk) ,mutil thread and process safe
 
 #### Version description
 * Supported version: Python 3.0+
