@@ -167,18 +167,22 @@ class LogManager(object):
         :param logger_name: 日志名称，当为None时候创建root命名空间的日志，一般情况下千万不要传None，除非你确定需要这么做和是在做什么.这个命名空间是双刃剑
         """
         if logger_name in (None, '', 'root'):
-            very_nb_print('logger_name 设置为None和root和空字符串都是一个意义，在操作根日志命名空间，任何其他日志的行为将会发生变化，一定要弄清楚原生logging包的日志name的意思。这个命名空间是双刃剑')
+            very_nb_print(
+                'logger_name 设置为None和root和空字符串都是一个意义，在操作根日志命名空间，任何其他日志的行为将会发生变化，一定要弄清楚原生logging包的日志name的意思。这个命名空间是双刃剑')
         self._logger_name = logger_name
         self.logger = logging.getLogger(logger_name)
 
     # 加*是为了强制在调用此方法时候使用关键字传参，如果以位置传参强制报错，因为此方法后面的参数中间可能以后随时会增加更多参数，造成之前的使用位置传参的代码参数意义不匹配。
     # noinspection PyAttributeOutsideInit
+    default_log_path = sys.path[1]+"/logs"
+
     def get_logger_and_add_handlers(self, log_level_int: int = None, *, is_add_stream_handler=True,
-                                    do_not_use_color_handler=None, log_path='/pythonlogs',
+                                    do_not_use_color_handler=None, log_path=default_log_path,
                                     log_filename=None, log_file_size: int = None,
                                     mongo_url=None, is_add_elastic_handler=False, is_add_kafka_handler=False,
                                     ding_talk_token=None, ding_talk_time_interval=60,
-                                    mail_handler_config: MailHandlerConfig = MailHandlerConfig(), is_add_mail_handler=False,
+                                    mail_handler_config: MailHandlerConfig = MailHandlerConfig(),
+                                    is_add_mail_handler=False,
                                     formatter_template: int = None):
         """
        :param log_level_int: 日志输出级别，设置为 1 2 3 4 5，分别对应原生logging.DEBUG(10)，logging.INFO(20)，logging.WARNING(30)，logging.ERROR(40),logging.CRITICAL(50)级别，现在可以直接用10 20 30 40 50了，兼容了。
@@ -331,9 +335,12 @@ class LogManager(object):
             self.__add_a_hanlder(CompatibleSMTPSSLHandler(**self._mail_handler_config.get_dict()))
 
 
-@lru_cache() # LogManager 本身也支持无限实例化
+default_log_path = sys.path[1] + '/logs'
+
+
+@lru_cache()  # LogManager 本身也支持无限实例化
 def get_logger(name: str, *, log_level_int: int = None, is_add_stream_handler=True,
-               do_not_use_color_handler=None, log_path='/pythonlogs',
+               do_not_use_color_handler=None, log_path=default_log_path,
                log_filename=None, log_file_size: int = None,
                mongo_url=None, is_add_elastic_handler=False, is_add_kafka_handler=False,
                ding_talk_token=None, ding_talk_time_interval=60,
