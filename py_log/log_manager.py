@@ -174,7 +174,7 @@ class LogManager(object):
 
     # 加*是为了强制在调用此方法时候使用关键字传参，如果以位置传参强制报错，因为此方法后面的参数中间可能以后随时会增加更多参数，造成之前的使用位置传参的代码参数意义不匹配。
     # noinspection PyAttributeOutsideInit
-    default_log_path = sys.path[1]+"/logs"
+    default_log_path = sys.path[1] + "/logs"
 
     def get_logger_and_add_handlers(self, log_level_int: int = None, *, is_add_stream_handler=True,
                                     do_not_use_color_handler=None, log_path=default_log_path,
@@ -183,7 +183,10 @@ class LogManager(object):
                                     ding_talk_token=None, ding_talk_time_interval=60,
                                     mail_handler_config: MailHandlerConfig = MailHandlerConfig(),
                                     is_add_mail_handler=False,
-                                    formatter_template: int = None):
+                                    formatter_template: int = None,
+                                    at_mobiles=(),
+                                    at_all: int = 0,
+                                    show_code_line=True):
         """
        :param log_level_int: 日志输出级别，设置为 1 2 3 4 5，分别对应原生logging.DEBUG(10)，logging.INFO(20)，logging.WARNING(30)，logging.ERROR(40),logging.CRITICAL(50)级别，现在可以直接用10 20 30 40 50了，兼容了。
        :param is_add_stream_handler: 是否打印日志到控制台
@@ -234,9 +237,11 @@ class LogManager(object):
         self._formatter = py_log_config_default.FORMATTER_DICT[formatter_template]
 
         self.logger.setLevel(self._logger_level)
+        self.at_mobiles = at_mobiles
+        self.at_all = at_all
+        self.show_code_line = show_code_line
         self.__add_handlers()
-        # self.logger_name_list.append(self._logger_name)
-        # self.logger_list.append(self.logger)
+
         return self.logger
 
     def get_logger_without_handlers(self):
@@ -329,7 +334,9 @@ class LogManager(object):
 
         # REMIND 添加钉钉日志。
         if not self._judge_logger_has_handler_type(DingTalkHandler) and self._ding_talk_token:
-            self.__add_a_hanlder(DingTalkHandler(self._ding_talk_token, self._ding_talk_time_interval))
+            self.__add_a_hanlder(
+                DingTalkHandler(self._ding_talk_token, self._ding_talk_time_interval, self.at_mobiles, self.at_all,
+                                self.show_code_line))
 
         if not self._judge_logger_has_handler_type(CompatibleSMTPSSLHandler) and self._is_add_mail_handler:
             self.__add_a_hanlder(CompatibleSMTPSSLHandler(**self._mail_handler_config.get_dict()))
@@ -345,7 +352,7 @@ def get_logger(name: str, *, log_level_int: int = None, is_add_stream_handler=Tr
                mongo_url=None, is_add_elastic_handler=False, is_add_kafka_handler=False,
                ding_talk_token=None, ding_talk_time_interval=60,
                mail_handler_config: MailHandlerConfig = MailHandlerConfig(), is_add_mail_handler=False,
-               formatter_template: int = None) -> logging.Logger:
+               formatter_template: int = None, at_mobiles=(), at_all=0, show_code_line=True) -> logging.Logger:
     """
     重写一遍，是为了更好的pycharm自动补全，所以不用**kwargs的写法。
     如果太喜欢函数调用了，可以使用这种
@@ -375,7 +382,6 @@ def get_logger(name: str, *, log_level_int: int = None, is_add_stream_handler=Tr
     """
     locals_copy = copy.copy(locals())
     locals_copy.pop('name')
-    # print(locals_copy)
     return LogManager(name).get_logger_and_add_handlers(**locals_copy)
 
 

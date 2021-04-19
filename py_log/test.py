@@ -1,13 +1,6 @@
-# -*- coding: utf-8 -*-
-# @Time    : 2020/8/30 21:56
-# @Author  : CC
-# @Desc    : test.py
-import sys
-
 from py_log import get_logger
 
 if __name__ == '__main__':
-    logger = get_logger(__name__)
-    logger.info('123456')
-    # default_log_path = sys.path[1] + '/logs'
-    # print(default_log_path)
+    ding_talk_token = 'xxxxxxxx'
+    logger = get_logger('ding_talk_test', ding_talk_token=ding_talk_token, at_mobiles=('13798565670',), show_code_line=False)
+    logger.info('钉钉调试')

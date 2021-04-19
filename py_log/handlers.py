@@ -738,13 +738,16 @@ class CompatibleSMTPSSLHandler(handlers.SMTPHandler):
 class DingTalkHandler(logging.Handler):
     _lock_for_remove_handlers = Lock()
 
-    def __init__(self, ding_talk_token=None, time_interval=60):
+    def __init__(self, ding_talk_token=None, time_interval=60, at_mobiles=(), at_all: int = 0, show_code_line=True):
         super().__init__()
-        self.ding_talk_token =ding_talk_token
+        self.ding_talk_token = ding_talk_token
         self._ding_talk_url = f'https://oapi.dingtalk.com/robot/send?access_token={ding_talk_token}'
         self._current_time = 0
         self._time_interval = time_interval  # 最好别频繁发。
         self._lock = Lock()
+        self.at_mobiles = at_mobiles
+        self.at_all = at_all
+        self.show_code_line = show_code_line
 
     def emit(self, record):
         # from threading import Thread
@@ -759,9 +762,22 @@ class DingTalkHandler(logging.Handler):
                 very_nb_print(f' 此次离上次发送钉钉消息时间间隔不足 {self._time_interval} 秒，此次不发送这个钉钉内容： {record.msg}    ')
 
     def __emit(self, record):
-        message = self.format(record)
+        if self.show_code_line:
+            message = self.format(record)
+        else:
+            message = record.msg
         very_nb_print(message)
-        data = {"msgtype": "text", "text": {"content": message, "title": '这里的标题能起作用吗？？'}}
+        #  {
+        #         "msgtype": "text",
+        #         "text": {"content": content},
+        #         "at": {"atMobiles": atMobiles, "isAtAll": isAtAll}
+        #     }
+        data = {"msgtype": "text", "text": {"content": message}, "at": dict()}
+        if self.at_all == 1:
+            data["at"]["isAtAll"] = 1
+        else:
+            if self.at_mobiles:
+                data["at"]['atMobiles'] = [mobile for mobile in self.at_mobiles]
         try:
             self._remove_urllib_hanlder()  # 因为钉钉发送也是使用requests实现的，如果requests调用的urllib3命名空间也加上了钉钉日志，将会造成循环，程序卡住。一般情况是在根日志加了钉钉handler。
             resp = requests.post(self._ding_talk_url, json=data, timeout=(5, 5))
@@ -775,12 +791,12 @@ class DingTalkHandler(logging.Handler):
 
     @classmethod
     def _remove_urllib_hanlder(cls):
-        for name in ['root','urllib3','requests']:
+        for name in ['root', 'urllib3', 'requests']:
             cls.__remove_urllib_hanlder_by_name(name)
 
     @classmethod
-    def __remove_urllib_hanlder_by_name(cls,logger_name):
+    def __remove_urllib_hanlder_by_name(cls, logger_name):
         with cls._lock_for_remove_handlers:
-            for index,hdlr in enumerate(logging.getLogger(logger_name).handlers):
+            for index, hdlr in enumerate(logging.getLogger(logger_name).handlers):
                 if 'DingTalkHandler' in str(hdlr):
                     logging.getLogger(logger_name).handlers.pop(index)

@@ -34,7 +34,7 @@ logger.error('dddd')
 from py_log import get_logger
 
 ding_talk_token = 'xxxxxxxx'
-logger = get_logger('ding_talk_test',ding_talk_token=ding_talk_token)
+logger = get_logger('ding_talk_test',ding_talk_token=ding_talk_token, at_mobiles=('13790000000', '13790000001'))
 logger.info('钉钉调试')
 ```
 
