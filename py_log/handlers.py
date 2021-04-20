@@ -10,6 +10,8 @@ import json
 import time
 from collections import OrderedDict
 from queue import Queue, Empty
+from urllib.parse import quote_plus
+
 from kafka import KafkaProducer
 from elasticsearch import Elasticsearch, helpers
 from threading import Lock, Thread
@@ -21,6 +23,12 @@ from concurrent_log_handler import ConcurrentRotatingFileHandler  # 需要安装
 
 from py_log import py_log_config_default
 from py_log import nb_print
+import hmac
+import base64
+import hashlib
+
+_ver = sys.version_info
+is_py3 = (_ver[0] == 3)
 
 very_nb_print = nb_print
 os_name = os.name
@@ -738,22 +746,36 @@ class CompatibleSMTPSSLHandler(handlers.SMTPHandler):
 class DingTalkHandler(logging.Handler):
     _lock_for_remove_handlers = Lock()
 
-    def __init__(self, ding_talk_token=None, time_interval=60, at_mobiles=(), at_all: int = 0, show_code_line=True):
+    def __init__(self, ding_talk_token=None, time_interval=60, at_mobiles=(), at_all: int = 0, show_code_line=True, secret=None):
         super().__init__()
         self.ding_talk_token = ding_talk_token
         self._ding_talk_url = f'https://oapi.dingtalk.com/robot/send?access_token={ding_talk_token}'
         self._current_time = 0
         self._time_interval = time_interval  # 最好别频繁发。
+        self.start_time = time.time()
         self._lock = Lock()
         self.at_mobiles = at_mobiles
         self.at_all = at_all
         self.show_code_line = show_code_line
+        self.secret = secret
+        if self.secret is not None and self.secret.startswith('SEC'):
+            self.update_webhook()
+
+    def update_webhook(self):
+        """
+        钉钉群自定义机器人安全设置加签时，签名中的时间戳与请求时不能超过一个小时，所以每个1小时需要更新签名
+        """
+        timestamp = round(self.start_time * 1000)
+        string_to_sign = '{}\n{}'.format(timestamp, self.secret)
+        hmac_code = hmac.new(self.secret.encode(), string_to_sign.encode(), digestmod=hashlib.sha256).digest()
+        sign = quote_plus(base64.b64encode(hmac_code))
+        self._ding_talk_url = '{}&timestamp={}&sign={}'.format(self._ding_talk_url, str(timestamp), sign)
 
     def emit(self, record):
         # from threading import Thread
         with self._lock:
             if time.time() - self._current_time > self._time_interval:
-                # very_nb_print(self._current_time)
+                # very_nb_print(self._ding_talk_url)
                 self._current_time = time.time()
                 self.__emit(record)
                 # Thread(target=self.__emit, args=(record,)).start()
@@ -767,11 +789,6 @@ class DingTalkHandler(logging.Handler):
         else:
             message = record.msg
         very_nb_print(message)
-        #  {
-        #         "msgtype": "text",
-        #         "text": {"content": content},
-        #         "at": {"atMobiles": atMobiles, "isAtAll": isAtAll}
-        #     }
         data = {"msgtype": "text", "text": {"content": message}, "at": dict()}
         if self.at_all == 1:
             data["at"]["isAtAll"] = 1

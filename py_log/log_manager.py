@@ -186,7 +186,8 @@ class LogManager(object):
                                     formatter_template: int = None,
                                     at_mobiles=(),
                                     at_all: int = 0,
-                                    show_code_line=True):
+                                    show_code_line=True,
+                                    secret=None):
         """
        :param log_level_int: 日志输出级别，设置为 1 2 3 4 5，分别对应原生logging.DEBUG(10)，logging.INFO(20)，logging.WARNING(30)，logging.ERROR(40),logging.CRITICAL(50)级别，现在可以直接用10 20 30 40 50了，兼容了。
        :param is_add_stream_handler: 是否打印日志到控制台
@@ -240,6 +241,7 @@ class LogManager(object):
         self.at_mobiles = at_mobiles
         self.at_all = at_all
         self.show_code_line = show_code_line
+        self.secret = secret
         self.__add_handlers()
 
         return self.logger
@@ -336,7 +338,7 @@ class LogManager(object):
         if not self._judge_logger_has_handler_type(DingTalkHandler) and self._ding_talk_token:
             self.__add_a_hanlder(
                 DingTalkHandler(self._ding_talk_token, self._ding_talk_time_interval, self.at_mobiles, self.at_all,
-                                self.show_code_line))
+                                self.show_code_line, self.secret))
 
         if not self._judge_logger_has_handler_type(CompatibleSMTPSSLHandler) and self._is_add_mail_handler:
             self.__add_a_hanlder(CompatibleSMTPSSLHandler(**self._mail_handler_config.get_dict()))
@@ -352,7 +354,7 @@ def get_logger(name: str, *, log_level_int: int = None, is_add_stream_handler=Tr
                mongo_url=None, is_add_elastic_handler=False, is_add_kafka_handler=False,
                ding_talk_token=None, ding_talk_time_interval=60,
                mail_handler_config: MailHandlerConfig = MailHandlerConfig(), is_add_mail_handler=False,
-               formatter_template: int = None, at_mobiles=(), at_all=0, show_code_line=False) -> logging.Logger:
+               formatter_template: int = None, at_mobiles=(), at_all=0, show_code_line=False, secret=None) -> logging.Logger:
     """
     重写一遍，是为了更好的pycharm自动补全，所以不用**kwargs的写法。
     如果太喜欢函数调用了，可以使用这种
