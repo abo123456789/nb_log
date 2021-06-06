@@ -364,7 +364,7 @@ def get_logger(name: str, *, log_level_int: int = None, is_add_stream_handler=Tr
                ding_talk_token=None, ding_talk_time_interval=60,
                mail_handler_config: MailHandlerConfig = MailHandlerConfig(), is_add_mail_handler=False,
                formatter_template: int = None, at_mobiles=(), at_all=0, show_code_line=False,
-               secret=None) -> logging.Logger:
+               secret=None, corpid=None, corpsecret=None, agentid=None, at_users=None) -> logging.Logger:
     """
     重写一遍，是为了更好的pycharm自动补全，所以不用**kwargs的写法。
     如果太喜欢函数调用了，可以使用这种
