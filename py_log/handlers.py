@@ -746,7 +746,8 @@ class CompatibleSMTPSSLHandler(handlers.SMTPHandler):
 class DingTalkHandler(logging.Handler):
     _lock_for_remove_handlers = Lock()
 
-    def __init__(self, ding_talk_token=None, time_interval=60, at_mobiles=(), at_all: int = 0, show_code_line=True, secret=None):
+    def __init__(self, ding_talk_token=None, time_interval=60, at_mobiles=(), at_all: int = 0, show_code_line=True,
+                 secret=None):
         super().__init__()
         self.ding_talk_token = ding_talk_token
         self._ding_talk_url = f'https://oapi.dingtalk.com/robot/send?access_token={ding_talk_token}'
@@ -805,6 +806,81 @@ class DingTalkHandler(logging.Handler):
     def __repr__(self):
         level = logging.getLevelName(self.level)
         return '<%s (%s)>' % (self.__class__.__name__, level) + ' dingtalk token is ' + self.ding_talk_token
+
+    @classmethod
+    def _remove_urllib_hanlder(cls):
+        for name in ['root', 'urllib3', 'requests']:
+            cls.__remove_urllib_hanlder_by_name(name)
+
+    @classmethod
+    def __remove_urllib_hanlder_by_name(cls, logger_name):
+        with cls._lock_for_remove_handlers:
+            for index, hdlr in enumerate(logging.getLogger(logger_name).handlers):
+                if 'DingTalkHandler' in str(hdlr):
+                    logging.getLogger(logger_name).handlers.pop(index)
+
+
+class WeChatHandler(logging.Handler):
+    _lock_for_remove_handlers = Lock()
+
+    def __init__(self, corpid=None, corpsecret=None, agentid=None, time_interval=60, at_users=(), at_all: int = 0,
+                 show_code_line=True):
+        super().__init__()
+        self.corpid = corpid
+        self.corpsecret = corpsecret
+        self.agentid = agentid
+        self.at_users = at_users
+        self.at_all = at_all
+        self._time_interval = time_interval  # 最好别频繁发。
+        self._current_time = 0
+        self.start_time = time.time()
+        self._lock = Lock()
+        self.show_code_line = show_code_line
+
+    def emit(self, record):
+        # from threading import Thread
+        with self._lock:
+            if time.time() - self._current_time > self._time_interval:
+                self._current_time = time.time()
+                self.__emit(record)
+
+            else:
+                very_nb_print(f' 此次离上次发送企业消息时间间隔不足 {self._time_interval} 秒，此次不发送这个钉钉内容： {record.msg}    ')
+
+    def _get_wechat_token(self):
+        tokenUrl = "https://qyapi.weixin.qq.com/cgi-bin/gettoken"
+        values = {'corpid': self.corpid, 'corpsecret': self.corpsecret}
+        req = requests.post(tokenUrl, params=values)
+        data = json.loads(req.text)
+        return data["access_token"]
+
+    def __emit(self, record):
+        if self.show_code_line:
+            message = self.format(record)
+        else:
+            message = record.msg
+        very_nb_print(message)
+        url_pre = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="
+
+        url = url_pre + self._get_wechat_token()
+        if self.at_all == 0:
+            to_user = '|'.join(list(self.at_users))
+        elif self.at_all == 1:
+            to_user = '@all'
+        values = """{"touser" : "%s" ,
+                          "msgtype":"text",
+                          "agentid":"%s",
+                          "text":{
+                            "content": "%s"
+                          },
+                          "safe":"0"
+                          }""".format(to_user, self.agentid, message)
+        try:
+            self._remove_urllib_hanlder()
+            resp = requests.post(url, values)
+            very_nb_print(f'企业微信返回 ： {resp.text}')
+        except requests.RequestException as e:
+            very_nb_print(f"发送消息给企业微信失败 {e}")
 
     @classmethod
     def _remove_urllib_hanlder(cls):
