@@ -1,5 +1,5 @@
 #### Function description
-py-log is a simple logging tool(support file,email,dingtalk) ,mutil thread and process safe
+py-log is a simple logging tool(support file,email,dingtalk, wechat) ,mutil thread and process safe
 
 #### Version description
 * Supported version: Python 3.0+
@@ -36,6 +36,13 @@ from py_log import get_logger
 ding_talk_token = 'xxxxxxxx'
 logger = get_logger('ding_talk_test',ding_talk_token=ding_talk_token, at_mobiles=('13790000000', '13790000001'))
 logger.info('钉钉调试')
+```
+
+```python
+# log send wechat
+from py_log import get_logger
+logger = get_logger('weichat_test', agentid='xxx', at_users='aa|bb', corpid='yyy', corpsecret='zzz')
+logger.info('企业微信通知')
 ```
 
 ```python

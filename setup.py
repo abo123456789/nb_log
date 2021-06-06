@@ -5,7 +5,7 @@ filepath = 'README.md'
 
 setup(
     name='py-log',
-    version="2.4",
+    version="2.5",
     description=(
         'a simple logging tool(support file,email,dingtalk) ,Multithreading and Multi process safe'
     ),

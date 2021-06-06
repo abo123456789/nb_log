@@ -10,7 +10,7 @@ def t_dingtalk():
 
 def t_wechat():
     logger = get_logger('weichat_test', agentid='xxx', at_users='aa|bb', corpid='yyy', corpsecret='zzz')
-    logger.info('钉钉调试')
+    logger.info('企业微信调试')
 
 
 if __name__ == '__main__':
