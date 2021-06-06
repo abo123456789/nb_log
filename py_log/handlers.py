@@ -823,8 +823,8 @@ class DingTalkHandler(logging.Handler):
 class WeChatHandler(logging.Handler):
     _lock_for_remove_handlers = Lock()
 
-    def __init__(self, corpid=None, corpsecret=None, agentid=None, time_interval=60, at_users=(), at_all: int = 0,
-                 show_code_line=True):
+    def __init__(self, corpid=None, corpsecret=None, agentid=None, at_users=(), at_all: int = 0,
+                 show_code_line=True, time_interval=60,):
         super().__init__()
         self.corpid = corpid
         self.corpsecret = corpsecret
@@ -852,6 +852,7 @@ class WeChatHandler(logging.Handler):
         values = {'corpid': self.corpid, 'corpsecret': self.corpsecret}
         req = requests.post(tokenUrl, params=values)
         data = json.loads(req.text)
+        very_nb_print(data)
         return data["access_token"]
 
     def __emit(self, record):
